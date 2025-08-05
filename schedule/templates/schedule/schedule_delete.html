@@ -1,0 +1,67 @@
+{% extends "core/base.html" %}
+{% block pageContent %}
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="card-header">
+            <h4 class="card-title mb-0">Excluir Agendamento</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning" role="alert">
+                <i class="mdi mdi-alert-circle-outline"></i>
+                <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+            </div>
+            
+            <p>Tem certeza que deseja excluir este agendamento?</p>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">Informações do Agendamento:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><strong>Cliente:</strong> {{ object.client.name }}</li>
+                                <li><strong>Profissional:</strong> {{ object.profissional.name }}</li>
+                                <li><strong>Serviço:</strong> {{ object.service.name }}</li>
+                                <li><strong>Categoria:</strong> {{ object.service.category.name }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><strong>Data:</strong> {{ object.date_schedule|date:"d/m/Y" }}</li>
+                                <li><strong>Hora:</strong> {{ object.time_schedule|time:"H:i" }}</li>
+                                <li><strong>Status:</strong> 
+                                    {% if object.status == 'agendado' %}
+                                        <span class="badge bg-primary">{{ object.get_status_display }}</span>
+                                    {% elif object.status == 'em_atendimento' %}
+                                        <span class="badge bg-warning">{{ object.get_status_display }}</span>
+                                    {% elif object.status == 'concluido' %}
+                                        <span class="badge bg-success">{{ object.get_status_display }}</span>
+                                    {% elif object.status == 'cancelado' %}
+                                        <span class="badge bg-danger">{{ object.get_status_display }}</span>
+                                    {% endif %}
+                                </li>
+                                <li><strong>Preço:</strong> R$ {{ object.service.price }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'schedule:schedule-view' %}" class="btn btn-secondary">
+                        <i class="mdi mdi-arrow-left"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="mdi mdi-delete"></i> Confirmar Exclusão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock pageContent %}
+

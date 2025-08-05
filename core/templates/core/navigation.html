@@ -1,0 +1,58 @@
+{% load static %}
+
+<aside class="mdc-drawer mdc-drawer--dismissible mdc-drawer--open bg-dark bg-gradient">
+  <div class="mdc-drawer__header border-bottom border-light">
+    <a href="{% url 'core:home-page' %}" class="brand-logo">
+      <h3 class="text-center text-light">IntGest System</h3>
+    </a>
+  </div>
+  <div class="mdc-drawer__content">
+    <nav class="mdc-list mdc-drawer-menu">
+      {% with current=request.resolver_match.url_name %}
+
+      <div class="mdc-list-item mdc-drawer-item {% if current == 'home-page' %}mdc-list-item--activated{% endif %}">
+        <a class="mdc-drawer-link" href="{% url 'core:home-page' %}">
+          <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon">home</i> Início
+        </a>
+      </div>
+      
+      <div class="mdc-list-item mdc-drawer-item {% if current == 'agenda-page' %}mdc-list-item--activated{% endif %}">
+        <a class="mdc-drawer-link" href="{% url 'schedule:schedule-view' %}">
+          <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon">event</i> Agenda
+        </a>
+      </div>
+
+      <div class="mdc-list-item mdc-drawer-item {% if current == 'client:client-list' %}mdc-list-item--activated{% endif %}">
+        <a class="mdc-drawer-link" href="{% url 'client:client-view' %}">
+          <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon">people</i> Cliente
+        </a>
+      </div>
+      
+      <div class="mdc-list-item mdc-drawer-item {% if current == 'service:category-view' %}mdc-list-item--activated{% endif %}">
+        <a class="mdc-drawer-link" href="{% url 'service:category-view' %}">
+          <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon">label</i> Categoria
+        </a>
+      </div>
+
+      <div class="mdc-list-item mdc-drawer-item {% if current == 'service:service-view' %}mdc-list-item--activated{% endif %}">
+        <a class="mdc-drawer-link" href="{% url 'service:service-view' %}">
+          <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon">work</i> Serviço
+        </a>
+      </div>
+
+      <div class="mdc-list-item mdc-drawer-item {% if current == 'service:service-view' %}mdc-list-item--activated{% endif %}">
+        <a class="mdc-drawer-link" href="{% url 'team:profissional-view' %}">
+          <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon">people_outline</i> Equipe
+        </a>
+      </div>
+
+      <div class="mdc-list-item mdc-drawer-item {% if current == 'dashboard-page' %}mdc-list-item--activated{% endif %}">
+        <a class="mdc-drawer-link" href="{% url 'dashboard:dashboard-view' %}">
+          <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon">dashboard</i> Dashboard
+        </a>
+      </div>
+      
+      {% endwith %}
+    </nav>
+  </div>
+</aside>

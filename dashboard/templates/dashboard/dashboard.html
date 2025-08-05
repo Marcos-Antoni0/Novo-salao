@@ -1,0 +1,269 @@
+{% extends "core/base.html" %}
+{% block pageContent %}
+
+<!-- Cabeçalho -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Dashboard - Histórico de Serviços</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros de Data -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card p-3">
+        <form id="dateFilterForm" class="row g-2">
+            <div class="col-md-4">
+                <label for="startDate" class="form-label">Data Inicial</label>
+                <input type="date" id="startDate" name="start_date" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="endDate" class="form-label">Data Final</label>
+                <input type="date" id="endDate" name="end_date" class="form-control">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="mdi mdi-filter"></i> Filtrar
+                </button>
+                <button type="button" id="resetFilter" class="btn btn-outline-secondary">
+                    <i class="mdi mdi-refresh"></i> Últimos 30 dias
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Cards de Estatísticas -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="row" id="statsCards">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Total Concluídos</h6>
+                            <h3 class="mb-0" id="totalConcluidos">-</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="mdi mdi-check-circle-outline mdi-36px"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Média Diária</h6>
+                            <h3 class="mb-0" id="mediaDiaria">-</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="mdi mdi-chart-line mdi-36px"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Melhor Dia</h6>
+                            <h6 class="mb-0" id="melhorDia">-</h6>
+                            <small id="maxServicos">-</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="mdi mdi-trophy mdi-36px"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Período</h6>
+                            <h3 class="mb-0" id="periodoDias">-</h3>
+                            <small>dias</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="mdi mdi-calendar-range mdi-36px"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Histórico de Serviços Concluídos</h5>
+        </div>
+        <div class="card-body">
+            <div id="chartContainer" style="position: relative; height: 400px;">
+                <canvas id="servicesChart"></canvas>
+            </div>
+            <div id="loadingChart" class="text-center py-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-2">Carregando dados do gráfico...</p>
+            </div>
+            <div id="noDataChart" class="text-center py-5" style="display: none;">
+                <i class="mdi mdi-chart-line-stacked mdi-48px text-muted"></i>
+                <p class="text-muted mt-2">Nenhum serviço concluído encontrado no período selecionado.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let chart = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Definir datas padrão (últimos 30 dias)
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+    
+    // Carregar dados iniciais
+    loadDashboardData();
+    
+    // Event listeners
+    document.getElementById('dateFilterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        loadDashboardData();
+    });
+    
+    document.getElementById('resetFilter').addEventListener('click', function() {
+        document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+        document.getElementById('endDate').value = today.toISOString().split('T')[0];
+        loadDashboardData();
+    });
+});
+
+function loadDashboardData() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    // Mostrar loading
+    document.getElementById('loadingChart').style.display = 'block';
+    document.getElementById('chartContainer').style.display = 'none';
+    document.getElementById('noDataChart').style.display = 'none';
+    
+    // Fazer requisição AJAX
+    const params = new URLSearchParams({
+        start_date: startDate,
+        end_date: endDate
+    });
+    
+    fetch(`/dashboard/data/?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            updateStats(data.stats);
+            updateChart(data.chart_data);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados:', error);
+            document.getElementById('loadingChart').style.display = 'none';
+            document.getElementById('noDataChart').style.display = 'block';
+        });
+}
+
+function updateStats(stats) {
+    document.getElementById('totalConcluidos').textContent = stats.total_concluidos;
+    document.getElementById('mediaDiaria').textContent = stats.media_diaria;
+    document.getElementById('melhorDia').textContent = stats.melhor_dia || 'N/A';
+    document.getElementById('maxServicos').textContent = stats.max_servicos ? `${stats.max_servicos} serviços` : '';
+    document.getElementById('periodoDias').textContent = stats.periodo_dias;
+}
+
+function updateChart(chartData) {
+    document.getElementById('loadingChart').style.display = 'none';
+    
+    // Verificar se há dados
+    const hasData = chartData.datasets[0].data.some(value => value > 0);
+    
+    if (!hasData) {
+        document.getElementById('noDataChart').style.display = 'block';
+        return;
+    }
+    
+    document.getElementById('chartContainer').style.display = 'block';
+    
+    const ctx = document.getElementById('servicesChart').getContext('2d');
+    
+    // Destruir gráfico anterior se existir
+    if (chart) {
+        chart.destroy();
+    }
+    
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Serviços Concluídos por Dia'
+                },
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    },
+                    title: {
+                        display: true,
+                        text: 'Quantidade de Serviços'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Data'
+                    },
+                    ticks: {
+                        maxTicksLimit: 10
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            elements: {
+                point: {
+                    radius: 4,
+                    hoverRadius: 6
+                }
+            }
+        }
+    });
+}
+</script>
+
+{% endblock pageContent %}
+

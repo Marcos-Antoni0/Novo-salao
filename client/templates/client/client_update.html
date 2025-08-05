@@ -1,0 +1,506 @@
+{% extends "core/base.html" %}
+{% block pageContent %}
+
+<!-- Cabeçalho -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-3">
+        <div class="d-flex justify-content-between align-items-center px-3">
+            <div class="d-flex align-items-center">
+                <i class="mdi mdi-account-edit text-primary me-2" style="font-size: 1.5rem;"></i>
+                <h4 class="card-title mb-0">Atualizar Cliente</h4>
+            </div>
+            <a href="{% url 'client:client-view' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="mdi mdi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Formulário -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data" class="client-form">
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    {% for field in form %}
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="text-danger ms-1">*</span>
+                                {% endif %}
+                            </label>
+                            
+                            <!-- Campo do formulário -->
+                            <div class="field-wrapper {% if field.name == 'date_birth' %}date-field-wrapper{% endif %}">
+                            {% if field.name == 'date_birth' %}
+                                <div class="date-input-container">
+                                <input
+                                    type="date"
+                                    name="{{ field.html_name }}"
+                                    id="{{ field.id_for_label }}"
+                                    class="form-control {{ field.css_classes }}"
+                                    value="{{ field.value|date:'Y-m-d' }}"
+                                />
+                                <button type="button" class="date-picker-toggle" title="Abrir calendário">
+                                    <i class="mdi mdi-calendar"></i>
+                                </button>
+                                <button type="button" class="date-clear-btn" title="Limpar data">
+                                    <i class="mdi mdi-close"></i>
+                                </button>
+                                </div>
+                                <div class="date-format-hint">
+                                <small class="text-muted">
+                                    <i class="mdi mdi-information-outline me-1"></i>
+                                    Digite no formato DD/MM/AAAA ou use o calendário
+                                </small>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            </div>
+                            
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    <i class="mdi mdi-alert-circle me-1"></i>
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <div class="form-text mt-2">
+                                    <i class="mdi mdi-information-outline me-1"></i>
+                                    {{ field.help_text }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{% url 'client:client-view' %}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="mdi mdi-close me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="mdi mdi-content-save me-2"></i>Salvar Alterações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos personalizados para o formulário */
+.client-form .field-wrapper input,
+.client-form .field-wrapper select,
+.client-form .field-wrapper textarea {
+    width: 100%;
+    border: 2px solid #89898a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    color: #495057;
+    font-family: inherit;
+}
+
+.client-form .field-wrapper input:focus,
+.client-form .field-wrapper select:focus,
+.client-form .field-wrapper textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+    background-color: #fff;
+    color: #212529;
+    outline: none;
+}
+
+.client-form .field-wrapper input:hover:not(:focus),
+.client-form .field-wrapper select:hover:not(:focus),
+.client-form .field-wrapper textarea:hover:not(:focus) {
+    border-color: #007bff;
+    background-color: #fff;
+}
+
+.client-form .field-wrapper textarea {
+    min-height: 80px;
+    max-height: 120px;
+    resize: vertical;
+}
+
+.client-form .form-label {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #495057;
+}
+
+/* Estilos específicos para o campo de data */
+.date-field-wrapper {
+    position: relative;
+}
+
+.date-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.date-input-container input[type="date"] {
+    padding-right: 80px;
+    font-family: inherit;
+}
+
+.date-picker-toggle,
+.date-clear-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+}
+
+.date-clear-btn {
+    right: 45px;
+    display: none;
+}
+
+.date-picker-toggle:hover,
+.date-clear-btn:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.date-input-container:hover .date-clear-btn {
+    display: flex;
+}
+
+.date-format-hint {
+    margin-top: 4px;
+}
+
+.date-format-hint small {
+    font-size: 0.8rem;
+}
+
+/* Estilo para campos obrigatórios */
+.client-form .field-wrapper input:required,
+.client-form .field-wrapper select:required,
+.client-form .field-wrapper textarea:required {
+    border-left: 4px solid #007bff;
+}
+
+.client-form .field-wrapper input:required:focus,
+.client-form .field-wrapper select:required:focus,
+.client-form .field-wrapper textarea:required:focus {
+    border-left: 4px solid #0056b3;
+}
+
+/* Estilos para validação */
+.client-form .field-wrapper input.is-invalid,
+.client-form .field-wrapper select.is-invalid,
+.client-form .field-wrapper textarea.is-invalid {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.client-form .field-wrapper input.is-invalid:focus,
+.client-form .field-wrapper select.is-invalid:focus,
+.client-form .field-wrapper textarea.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.client-form .invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Estilos para os botões */
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    background: transparent;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .btn-lg {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animação suave para transições */
+.client-form {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Melhor contraste para placeholder */
+.client-form .field-wrapper input::placeholder,
+.client-form .field-wrapper textarea::placeholder {
+    color: #6c757d;
+    opacity: 0.8;
+}
+
+.client-form .field-wrapper input:focus::placeholder,
+.client-form .field-wrapper textarea:focus::placeholder {
+    color: #adb5bd;
+    opacity: 0.6;
+}
+
+/* Estilo especial para input de data no WebKit (Chrome, Safari) */
+.client-form .field-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Foco automático no primeiro campo editável
+    const firstInput = document.querySelector('.client-form .field-wrapper input:not([readonly]):not([disabled]), .client-form .field-wrapper select:not([readonly]):not([disabled]), .client-form .field-wrapper textarea:not([readonly]):not([disabled])');
+    if (firstInput) {
+        firstInput.focus();
+    }
+    
+    // Funcionalidade avançada para o campo de data
+    const dateInput = document.querySelector('input[type="date"]');
+    if (dateInput) {
+        const dateContainer = dateInput.closest('.date-input-container');
+        const pickerToggle = dateContainer.querySelector('.date-picker-toggle');
+        const clearBtn = dateContainer.querySelector('.date-clear-btn');
+        
+        // Função para abrir o calendário
+        pickerToggle.addEventListener('click', function() {
+            dateInput.showPicker ? dateInput.showPicker() : dateInput.focus();
+        });
+        
+        // Função para limpar a data
+        clearBtn.addEventListener('click', function() {
+            dateInput.value = '';
+            dateInput.dispatchEvent(new Event('input', { bubbles: true }));
+            dateInput.focus();
+        });
+        
+        // Mostrar/esconder botão de limpar baseado no valor
+        function toggleClearButton() {
+            if (dateInput.value) {
+                clearBtn.style.display = 'flex';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+        }
+        
+        dateInput.addEventListener('input', toggleClearButton);
+        dateInput.addEventListener('change', toggleClearButton);
+        
+        // Inicializar estado do botão limpar
+        toggleClearButton();
+        
+        // Validação de data em tempo real
+        dateInput.addEventListener('blur', function() {
+            if (this.value) {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate > today) {
+                    this.classList.add('is-invalid');
+                    showDateError('A data de nascimento não pode ser no futuro.');
+                } else {
+                    this.classList.remove('is-invalid');
+                    hideDateError();
+                }
+            }
+        });
+        
+        // Função para mostrar erro de data
+        function showDateError(message) {
+            let errorDiv = dateContainer.parentNode.querySelector('.date-error');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block mt-2 date-error';
+                dateContainer.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.innerHTML = `<i class="mdi mdi-alert-circle me-1"></i>${message}`;
+        }
+        
+        // Função para esconder erro de data
+        function hideDateError() {
+            const errorDiv = dateContainer.parentNode.querySelector('.date-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+        
+        // Debug: Log do valor inicial da data
+        console.log('Data inicial carregada:', dateInput.value);
+        console.log('Data do objeto:', dateInput.getAttribute('value'));
+    }
+    
+    // Validação visual em tempo real para outros campos
+    const inputs = document.querySelectorAll('.client-form .field-wrapper input:not([type="date"]), .client-form .field-wrapper select, .client-form .field-wrapper textarea');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.hasAttribute('required') && !this.value.trim()) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid') && this.value.trim()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+    
+    // Formatação automática do telefone
+    const phoneInput = document.querySelector('input[name="phone_number"]');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length <= 11) {
+                if (value.length === 11) {
+                    value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+                } else if (value.length === 10) {
+                    value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+                } else if (value.length > 6) {
+                    value = value.replace(/(\d{2})(\d{4})(\d)/, '($1) $2-$3');
+                } else if (value.length > 2) {
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                }
+            }
+            
+            e.target.value = value;
+        });
+    }
+    
+    // Confirmação antes de sair sem salvar
+    let formChanged = false;
+    const form = document.querySelector('.client-form');
+    const allInputs = document.querySelectorAll('.client-form input, .client-form select, .client-form textarea');
+    
+    // Capturar dados originais do formulário
+    const originalValues = {};
+    allInputs.forEach(input => {
+        originalValues[input.name] = input.value;
+    });
+    
+    allInputs.forEach(input => {
+        input.addEventListener('change', () => {
+            if (originalValues[input.name] !== input.value) {
+                formChanged = true;
+            }
+        });
+        
+        input.addEventListener('input', () => {
+            if (originalValues[input.name] !== input.value) {
+                formChanged = true;
+            }
+        });
+    });
+    
+    document.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (formChanged && !confirm('Você tem alterações não salvas. Deseja sair mesmo assim?')) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Adicionar animação de sucesso no envio
+    form.addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin me-2"></i>Salvando...';
+        submitBtn.disabled = true;
+        
+        // Se houver erro de validação, restaurar o botão
+        setTimeout(() => {
+            if (document.querySelector('.invalid-feedback')) {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }, 100);
+    });
+});
+</script>
+
+{% endblock pageContent %}

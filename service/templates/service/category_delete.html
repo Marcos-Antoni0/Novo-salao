@@ -1,0 +1,95 @@
+{% extends "core/base.html" %}
+
+{% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Excluir Categoria</h4>
+            <div class="text-start">
+                <a href="{% url 'service:category-view' %}" class="btn btn-secondary bg-gradient btn-sm rounded-0">
+                    <i class="mdi mdi-arrow-left"></i><span> Voltar</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-6 mdc-layout-grid__cell--span-12-phone">
+    <div class="mdc-card">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <i class="mdi mdi-alert-circle-outline text-warning" style="font-size: 3rem;"></i>
+                <h5 class="mt-2">Confirmar Exclusão</h5>
+            </div>
+            
+            <div class="alert alert-warning text-center" role="alert">
+                Tem certeza que deseja excluir a categoria <br>
+                <strong>{{ object.name }}</strong>?
+            </div>
+
+            <!-- Informações adicionais da categoria -->
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <strong>Nome:</strong>
+                    </div>
+                    <div class="col-sm-8">
+                        {{ object.name }}
+                    </div>
+                </div>
+                {% if object.description %}
+                <div class="row mt-2">
+                    <div class="col-sm-4">
+                        <strong>Descrição:</strong>
+                    </div>
+                    <div class="col-sm-8">
+                        {{ object.description }}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="row mt-2">
+                    <div class="col-sm-4">
+                        <strong>Status:</strong>
+                    </div>
+                    <div class="col-sm-8">
+                        {% if object.ative %}
+                            <span class="badge bg-success">Ativo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inativo</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aviso sobre serviços vinculados -->
+            {% if object.services.exists %}
+            <div class="alert alert-danger" role="alert">
+                <i class="mdi mdi-alert me-2"></i>
+                <strong>Atenção:</strong> Esta categoria possui {{ object.services.count }} serviço{{ object.services.count|pluralize }} vinculado{{ object.services.count|pluralize }}. 
+                Ao excluir esta categoria, todos os serviços vinculados também serão excluídos.
+                <div class="mt-2">
+                    <small><strong>Serviços que serão excluídos:</strong></small>
+                    <ul class="mb-0 mt-1">
+                        {% for service in object.services.all %}
+                        <li><small>{{ service.name }}</small></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                    <a href="{% url 'service:category-view' %}" class="btn btn-secondary bg-gradient btn-sm rounded-0">
+                        <i class="mdi mdi-close"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger bg-gradient btn-sm rounded-0">
+                        <i class="mdi mdi-delete"></i> Excluir
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock pageContent %}

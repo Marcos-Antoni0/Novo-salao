@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+{% block pageContent %}
+
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="card-header">
+            <h4 class="card-title mb-0">Excluir Profissional</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning" role="alert">
+                <i class="mdi mdi-alert-circle-outline"></i>
+                <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+            </div>
+            
+            <p>Tem certeza que deseja excluir o profissional <strong>{{ object.name }}</strong>?</p>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">Informações do Profissional:</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>Nome:</strong> {{ object.name }}</li>
+                        <li><strong>Email:</strong> {{ object.email }}</li>
+                        <li><strong>Telefone:</strong> {{ object.phone_number }}</li>
+                        <li><strong>Especialidade:</strong> {{ object.especialty.name }}</li>
+                        <li><strong>Data de Contratação:</strong> {{ object.date_contract|date:"d/m/Y" }}</li>
+                        <li><strong>Status:</strong> 
+                            {% if object.ative %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'team:profissional-view' %}" class="btn btn-secondary">
+                        <i class="mdi mdi-arrow-left"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="mdi mdi-delete"></i> Confirmar Exclusão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock pageContent %}
+

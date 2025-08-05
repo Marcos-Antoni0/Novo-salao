@@ -1,0 +1,118 @@
+{% extends "core/base.html" %}
+{% load humanize %}
+{% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="d-flex justify-content-between">
+            <h4 class="card-title mb-0">Bem-vindo, 
+                {{ user.first_name|default:user.username }} {{ user.last_name}}!</h4>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <hr class="w-100">
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--primary">
+        <div class="card-inner">
+            <h5 class="card-title">Serviços do Dia</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom">{{ servicos_do_dia }}</h5>
+            <p class="tx-12 text-muted">Total de serviços agendados para hoje</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">event</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--warning">
+        <div class="card-inner">
+            <h5 class="card-title">Pendentes</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom">{{ pendentes }}</h5>
+            <p class="tx-12 text-muted">Serviços pendentes para hoje</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">schedule</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--success">
+        <div class="card-inner">
+            <h5 class="card-title">Finalizados</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom">{{ finalizados }}</h5>
+            <p class="tx-12 text-muted">Serviços finalizados hoje</p>
+            <div class="card-icon-wrapper">
+                <i class="material-icons">check_circle</i>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-3-desktop mdc-layout-grid__cell--span-3-tablet">
+    <div class="mdc-card info-card info-card--info">
+        <div class="card-inner">
+            <h5 class="card-title">Vendas Hoje</h5>
+            <h5 class="font-weight-light pb-2 mb-1 border-bottom">R$ {{ vendas_hoje|floatformat:2 }}</h5>
+            <p class="tx-12 text-muted">Total de vendas realizadas hoje</p>
+            <div class="card-icon-wrapper">
+                <i class="mdi mdi-cash-multiple"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Seção de Ações Rápidas -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Ações Rápidas</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <a href="/schedule/create/" class="btn btn-primary btn-lg w-100">
+                        <i class="mdi mdi-plus-circle"></i><br>
+                        Novo Agendamento
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'schedule:schedule-view' %}" class="btn btn-outline-primary btn-lg w-100">
+                        <i class="mdi mdi-calendar-clock"></i><br>
+                        Ver Agenda
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'client:client-create' %}" class="btn btn-outline-success btn-lg w-100">
+                        <i class="mdi mdi-account-plus"></i><br>
+                        Novo Cliente
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'dashboard:dashboard-view' %}" class="btn btn-outline-info btn-lg w-100">
+                        <i class="mdi mdi-chart-line"></i><br>
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Agendamentos de Hoje -->
+{% if servicos_do_dia > 0 %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Agendamentos de Hoje</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Você tem {{ servicos_do_dia }} agendamento{{ servicos_do_dia|pluralize }} para hoje.</p>
+            <a href="/schedule/?date={{ today|date:'Y-m-d' }}" class="btn btn-primary">
+                <i class="mdi mdi-calendar-today"></i> Ver Agendamentos de Hoje
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock pageContent %}

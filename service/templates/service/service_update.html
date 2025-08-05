@@ -1,0 +1,243 @@
+{% extends "core/base.html" %}
+{% block pageContent %}
+
+<!-- Cabeçalho -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-3">
+        <div class="d-flex justify-content-between align-items-center px-3">
+            <div class="d-flex align-items-center">
+                <i class="mdi mdi-plus-circle text-primary me-2" style="font-size: 1.5rem;"></i>
+                <h4 class="card-title mb-0">Atualizar Serviço</h4>
+            </div>
+            <a href="{% url 'service:service-view' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="mdi mdi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Formulário -->
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="card-body p-4">
+            <form method="post" enctype="multipart/form-data" class="service-form">
+                {% csrf_token %}
+                <div class="row g-3">
+                    {% for field in form %}
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark">
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="text-danger ms-1">*</span>
+                                {% endif %}
+                            </label>
+                            <div class="field-wrapper">
+                                {% if field.name == 'ative' or field.name == 'active' %}
+                                    <select name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="form-select status-select" {% if field.field.required %}required{% endif %}>
+                                        <option value="" disabled {% if not field.value %}selected{% endif %}>Selecione o status</option>
+                                        <option value="True" data-status="active" {% if field.value == True or field.value == 'True' %}selected{% endif %}>Ativo</option>
+                                        <option value="False" data-status="inactive" {% if field.value == False or field.value == 'False' %}selected{% endif %}>Inativo</option>
+                                    </select>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                            </div>
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block mt-2">
+                                    <i class="mdi mdi-alert-circle me-1"></i>
+                                    {% for error in field.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="form-text mt-2">
+                                    <i class="mdi mdi-information-outline me-1"></i>{{ field.help_text }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{% url 'service:service-view' %}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="mdi mdi-close me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="mdi mdi-content-save me-2"></i>Salvar Alterações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos personalizados do service_create */
+.service-form .field-wrapper input,
+.service-form .field-wrapper select,
+.service-form .field-wrapper textarea {
+    width: 100%;
+    border: 2px solid #89898a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    color: #495057;
+    font-family: inherit;
+}
+.service-form .field-wrapper input:focus,
+.service-form .field-wrapper select:focus,
+.service-form .field-wrapper textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+    background-color: #fff;
+    color: #212529;
+    outline: none;
+}
+.service-form .field-wrapper input:hover:not(:focus),
+.service-form .field-wrapper select:hover:not(:focus),
+.service-form .field-wrapper textarea:hover:not(:focus) {
+    border-color: #007bff;
+    background-color: #fff;
+}
+.service-form .field-wrapper textarea {
+    min-height: 80px;
+    max-height: 120px;
+    resize: vertical;
+}
+
+/* Status select styling */
+.status-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+}
+.status-select option[data-status="active"] {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    font-weight: 500;
+}
+.status-select option[data-status="inactive"] {
+    background-color: #f5f5f5;
+    color: #616161;
+    font-weight: 500;
+}
+.status-select.active-selected {
+    border-color: #2196f3;
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+.status-select.inactive-selected {
+    border-color: #9e9e9e;
+    background-color: #f5f5f5;
+    color: #616161;
+}
+
+/* Validation */
+.service-form .field-wrapper input.is-invalid,
+.service-form .field-wrapper select.is-invalid,
+.service-form .field-wrapper textarea.is-invalid {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+.service-form .field-wrapper input.is-invalid:focus,
+.service-form .field-wrapper select.is-invalid:focus,
+.service-form .field-wrapper textarea.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+.service-form .invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+.btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    background: transparent;
+}
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Responsividade e animação */
+@media (max-width: 768px) {
+    .col-md-6 { margin-bottom: 1rem; }
+    .d-flex.gap-3 { flex-direction: column; gap: 0.5rem !important; }
+    .btn-lg { width: 100%; margin-bottom: 0.5rem; }
+}
+.service-form { animation: fadeIn 0.4s ease-in; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+.service-form .field-wrapper input::placeholder,
+.service-form .field-wrapper textarea::placeholder { color: #6c757d; opacity: 0.8; }
+.service-form .field-wrapper input:focus::placeholder,
+.service-form .field-wrapper textarea:focus::placeholder { color: #adb5bd; opacity: 0.6; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Foco automático
+    const firstInput = document.querySelector('.service-form .field-wrapper input:not([readonly]):not([disabled]), .service-form .field-wrapper select:not([readonly]):not([disabled]), .service-form .field-wrapper textarea:not([readonly]):not([disabled])');
+    if (firstInput) firstInput.focus();
+
+    // Status select
+    const statusSelect = document.querySelector('.status-select');
+    if (statusSelect) {
+        function updateStatusSelectStyle() {
+            const opt = statusSelect.options[statusSelect.selectedIndex];
+            statusSelect.classList.remove('active-selected', 'inactive-selected');
+            if (opt && opt.dataset.status) {
+                statusSelect.classList.add(opt.dataset.status === 'active' ? 'active-selected' : 'inactive-selected');
+            }
+        }
+        updateStatusSelectStyle();
+        statusSelect.addEventListener('change', updateStatusSelectStyle);
+    }
+
+    // Validação visual
+    document.querySelectorAll('.service-form .field-wrapper input, .service-form .field-wrapper select, .service-form .field-wrapper textarea').forEach(el => {
+        el.addEventListener('blur', function() {
+            if (this.required && !this.value.trim()) this.classList.add('is-invalid'); else this.classList.remove('is-invalid');
+        });
+        el.addEventListener('input', function() { if (this.classList.contains('is-invalid') && this.value.trim()) this.classList.remove('is-invalid'); });
+    });
+
+    // Confirmação antes de sair
+    let changed = false;
+    document.querySelectorAll('.service-form input, .service-form select, .service-form textarea').forEach(el => el.addEventListener('change', () => changed = true));
+    document.querySelectorAll('a[href]').forEach(link => link.addEventListener('click', e => { if (changed && !confirm('Você tem alterações não salvas. Deseja sair mesmo assim?')) e.preventDefault(); }));
+});
+</script>
+
+{% endblock pageContent %}
