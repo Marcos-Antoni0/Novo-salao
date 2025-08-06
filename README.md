@@ -57,52 +57,6 @@ Este é um sistema web desenvolvido em Django para gerenciar agendamentos de um 
 - Python 3.11 ou superior
 - pip (gerenciador de pacotes Python)
 
-## Instalação e Configuração
-
-### 1. Clone o repositório
-```bash
-git clone <url-do-repositorio>
-cd sistema-salao-beleza
-```
-
-### 2. Crie e ative o ambiente virtual
-```bash
-# Criar ambiente virtual
-python -m venv venv
-
-# Ativar ambiente virtual
-# No Windows:
-venv\Scripts\activate
-# No Linux/Mac:
-source venv/bin/activate
-```
-
-### 3. Instale as dependências
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure o banco de dados
-```bash
-# Criar migrações
-python manage.py makemigrations
-
-# Aplicar migrações
-python manage.py migrate
-```
-
-### 5. Crie um superusuário (opcional)
-```bash
-python manage.py createsuperuser
-```
-
-### 6. Execute o servidor de desenvolvimento
-```bash
-python manage.py runserver
-```
-
-O sistema estará disponível em: `http://127.0.0.1:8000/`
-
 ## Estrutura do Projeto
 
 ```
@@ -186,7 +140,4 @@ Este projeto foi desenvolvido como parte de um desafio técnico, seguindo as mel
 - Interface amigável
 - Segurança
 
-## Licença
-
-Este projeto é de uso educacional e foi desenvolvido para demonstração de habilidades técnicas.
 
