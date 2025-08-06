@@ -3,7 +3,7 @@ import uuid
 
 
 class Schedule(models.Model): 
-    class ScheduleChoice(models.TextChoices):  # <- Agora como classe interna
+    class ScheduleChoice(models.TextChoices):
         AGENDADO = 'agendado', 'Agendado'
         EM_ATENDIMENTO = 'em_atendimento', 'Em atendimento'
         CONCLUIDO = 'concluido', 'Concluído'

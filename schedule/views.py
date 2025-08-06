@@ -16,7 +16,7 @@ class ScheduleView(ListView):
     model = Schedule
     template_name = 'schedule/schedule.html'
     context_object_name = 'schedules'
-    paginate_by = 10
+    paginate_by = 1
 
     def get_queryset(self):
         queryset = super().get_queryset().select_related(

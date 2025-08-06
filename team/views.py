@@ -14,7 +14,7 @@ class ProfissionalView(ListView):
     model = Profissional
     template_name = 'team/profissional.html'
     context_object_name = 'profissionais'
-    paginate_by = 5
+    paginate_by = 1
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('name')

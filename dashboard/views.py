@@ -5,22 +5,20 @@ from django.db.models import Count
 from django.utils import timezone
 from datetime import datetime, timedelta
 from schedule.models import Schedule
+from collections import defaultdict
 
 
 @login_required(login_url='login')
 def dashboard_view(request):
-    """View principal do dashboard"""
     return render(request, 'dashboard/dashboard.html')
 
 
 @login_required(login_url='login')
 def dashboard_data_ajax(request):
-    """View para retornar dados do dashboard via AJAX"""
-    # Obter parâmetros de filtro
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    # Definir datas padrão (últimos 30 dias)
+    
     if not start_date or not end_date:
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=30)
@@ -28,38 +26,38 @@ def dashboard_data_ajax(request):
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     
-    # Buscar agendamentos concluídos no período
     schedules = Schedule.objects.filter(
         status='concluido',
+        data_conclusao__isnull=False,
         data_conclusao__date__gte=start_date,
         data_conclusao__date__lte=end_date
-    ).extra(
-        select={'date': 'DATE(data_conclusao)'}
-    ).values('date').annotate(
-        count=Count('id')
-    ).order_by('date')
+    ).values('data_conclusao')
     
-    # Preparar dados para o gráfico
+    date_counts = defaultdict(int)
+    
+    for schedule in schedules:
+        date_key = schedule['data_conclusao'].date()
+        date_counts[date_key] += 1
+
     labels = []
     data = []
     
-    # Criar lista de todas as datas no período
     current_date = start_date
-    date_counts = {item['date']: item['count'] for item in schedules}
     
     while current_date <= end_date:
         labels.append(current_date.strftime('%d/%m/%Y'))
         data.append(date_counts.get(current_date, 0))
         current_date += timedelta(days=1)
     
-    # Estatísticas gerais
     total_concluidos = sum(data)
     media_diaria = round(total_concluidos / len(data), 1) if data else 0
     
-    # Encontrar o dia com mais serviços
     max_servicos = max(data) if data else 0
-    max_servicos_index = data.index(max_servicos) if max_servicos > 0 else 0
-    melhor_dia = labels[max_servicos_index] if labels else ''
+    melhor_dia = ''
+    
+    if max_servicos > 0:
+        max_servicos_index = data.index(max_servicos)
+        melhor_dia = labels[max_servicos_index]
     
     response_data = {
         'chart_data': {

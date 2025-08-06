@@ -15,22 +15,18 @@ from schedule.models import Schedule
 def home(request):
     today = date.today()
     
-    # Serviços do dia (total de agendamentos para hoje)
     servicos_do_dia = Schedule.objects.filter(date_schedule=today).count()
     
-    # Pendentes (serviços agendados ou em atendimento para hoje)
     pendentes = Schedule.objects.filter(
         date_schedule=today,
         status__in=['agendado', 'em_atendimento']
     ).count()
     
-    # Finalizados (serviços concluídos hoje)
     finalizados = Schedule.objects.filter(
         date_schedule=today,
         status='concluido'
     ).count()
     
-    # Vendas hoje (soma dos preços dos serviços concluídos hoje)
     vendas_hoje = Schedule.objects.filter(
         date_schedule=today,
         status='concluido'

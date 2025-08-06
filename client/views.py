@@ -15,27 +15,20 @@ class ClientView(ListView):
     model = Client
     template_name = 'client/client.html'
     context_object_name = 'clients'
-    paginate_by = 5
+    paginate_by = 1
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('name')
         
         search = self.request.GET.get('search', '').strip()
         if search:
-            # Cache da busca por 5 minutos
-            cache_key = f'client_search_{hash(search)}_{self.request.user.id}'
-            cached_result = cache.get(cache_key)
-            
-            if cached_result is None:
-                queryset = queryset.filter(
-                    Q(name__icontains=search) |
-                    Q(email__icontains=search) |
-                    Q(phone_number__icontains=search)
-                )
-                if queryset.count() <= 100:
-                    cache.set(cache_key, list(queryset.values_list('id', flat=True)), 300)  # 5 minutos
-            else:
-                queryset = queryset.filter(id__in=cached_result)
+            # Aplicar filtro de busca diretamente no queryset
+            # Remover cache complexo que pode estar causando problemas
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(email__icontains=search) |
+                Q(phone_number__icontains=search)
+            )
         
         return queryset
     
@@ -44,17 +37,21 @@ class ClientView(ListView):
         search = self.request.GET.get('search', '')
         context['search'] = search
         
-        # Cache do total de clientes
-        if not search:
-            total_key = f'total_clients_{self.request.user.id}'
-            total_clients = cache.get(total_key)
-            if total_clients is None:
-                total_clients = self.get_queryset().count()
-                cache.set(total_key, total_clients, 600)  # 10 minutos
-        else:
-            total_clients = self.get_queryset().count()
+        # Total de clientes sempre será o total geral (não filtrado)
+        total_key = f'total_clients_{self.request.user.id}'
+        total_clients = cache.get(total_key)
+        if total_clients is None:
+            total_clients = Client.objects.count()  # Total geral, não filtrado
+            cache.set(total_key, total_clients, 600)  # 10 minutos
             
         context['total_clients'] = total_clients
+        
+        # Debug: adicionar informações de paginação
+        if hasattr(context, 'page_obj'):
+            print(f"Página atual: {context['page_obj'].number}")
+            print(f"Total de páginas: {context['page_obj'].paginator.num_pages}")
+            print(f"Items por página: {self.paginate_by}")
+            print(f"Total de items: {context['page_obj'].paginator.count}")
         
         return context
 

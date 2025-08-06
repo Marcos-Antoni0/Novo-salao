@@ -14,7 +14,7 @@ class CategoryView(ListView):
     model = Category
     template_name = 'service/category.html'
     context_object_name = 'categories'
-    paginate_by = 5
+    paginate_by = 1
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('name')
@@ -76,7 +76,7 @@ class ServiceView(ListView):
     model = Service
     template_name = 'service/service.html'
     context_object_name = 'services'
-    paginate_by = 5
+    paginate_by = 1
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('name')

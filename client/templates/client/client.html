@@ -102,14 +102,15 @@
     </div>
 </div>
 
-<!-- Paginação -->
+<!-- Paginação Simplificada -->
 {% if is_paginated %}
 <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
     <div class="mdc-card p-3">
         <div class="d-flex justify-content-between align-items-center">
             <div class="pagination-info">
                 <small class="text-muted">
-                    Exibindo {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ page_obj.paginator.count }} clientes
+                    Exibindo {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ page_obj.paginator.count }} 
+                    {% if search %}resultado{{ page_obj.paginator.count|pluralize }}{% else %}cliente{{ page_obj.paginator.count|pluralize }}{% endif %}
                 </small>
             </div>
             
@@ -118,40 +119,48 @@
                     <!-- Primeira página -->
                     {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}page=1" aria-label="Primeira">
-                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            <a class="page-link" href="?{% if search %}search={{ search|urlencode }}&{% endif %}page=1">
+                                &laquo;&laquo;
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Anterior">
-                                <span aria-hidden="true">&laquo;</span>
+                            <a class="page-link" href="?{% if search %}search={{ search|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                                &laquo;
                             </a>
                         </li>
                     {% endif %}
 
-                    <!-- Páginas -->
+                    <!-- Página atual e vizinhas -->
                     {% for num in page_obj.paginator.page_range %}
                         {% if page_obj.number == num %}
                             <li class="page-item active">
                                 <span class="page-link">{{ num }}</span>
                             </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'2' %}
                             <li class="page-item">
-                                <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}page={{ num }}">{{ num }}</a>
+                                <a class="page-link" href="?{% if search %}search={{ search|urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if search %}search={{ search|urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
                             </li>
                         {% endif %}
                     {% endfor %}
 
-                    <!-- Próxima página -->
+                    <!-- Última página -->
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Próxima">
-                                <span aria-hidden="true">&raquo;</span>
+                            <a class="page-link" href="?{% if search %}search={{ search|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">
+                                &raquo;
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}page={{ page_obj.paginator.num_pages }}" aria-label="Última">
-                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            <a class="page-link" href="?{% if search %}search={{ search|urlencode }}&{% endif %}page={{ page_obj.paginator.num_pages }}">
+                                &raquo;&raquo;
                             </a>
                         </li>
                     {% endif %}
@@ -163,13 +172,54 @@
 {% endif %}
 
 <script>
-// Foco automático no campo de busca ao carregar a página
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
-    if (searchInput && !searchInput.value) {
+    const searchForm = searchInput.closest('form');
+    
+    // Debug
+    console.log('Página atual:', new URLSearchParams(window.location.search).get('page') || '1');
+    console.log('Busca atual:', new URLSearchParams(window.location.search).get('search') || 'nenhuma');
+    
+    // Foco automático no campo de busca se não houver valor
+    if (searchInput && !searchInput.value.trim()) {
         searchInput.focus();
     }
+    
+    // Resetar página quando fazer nova busca
+    searchForm.addEventListener('submit', function(e) {
+        // Remove parâmetro de página ao fazer nova busca
+        const url = new URL(window.location);
+        url.searchParams.delete('page');
+        
+        // Se tiver busca, adiciona ao URL
+        const searchValue = searchInput.value.trim();
+        if (searchValue) {
+            url.searchParams.set('search', searchValue);
+        } else {
+            url.searchParams.delete('search');
+        }
+        
+        // Previne submit normal e redireciona
+        e.preventDefault();
+        window.location.href = url.toString();
+    });
+    
+    // Enter no campo de busca
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchForm.dispatchEvent(new Event('submit'));
+        }
+    });
 });
+
+// Função para debug - remover depois
+function debugPagination() {
+    const params = new URLSearchParams(window.location.search);
+    console.log('Parâmetros da URL:', {
+        page: params.get('page'),
+        search: params.get('search')
+    });
+}
 </script>
 
 {% endblock pageContent %}
