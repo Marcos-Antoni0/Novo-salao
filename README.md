@@ -15,11 +15,13 @@ Este é um sistema web desenvolvido em Django para gerenciar agendamentos de um 
 - Cadastro de serviços com preço e duração
 - Vinculação de serviços às categorias
 - Controle de status para categorias e serviços
+- Paginação para melhor performance
 
 ### Gestão da Equipe
 - Cadastro de profissionais
 - Especialização por categoria (profissionais só podem executar serviços de sua especialidade)
 - Controle de dados contratuais
+- Paginação para melhor performance
 
 ### Sistema de Agendamentos
 - Criação de agendamentos vinculando cliente, profissional e serviço
@@ -27,6 +29,7 @@ Este é um sistema web desenvolvido em Django para gerenciar agendamentos de um 
 - Validação de compatibilidade entre profissional e serviço
 - Visualização detalhada via modal
 - Filtros por status e busca
+- Paginação para melhor performance
 
 ### Dashboard e Relatórios
 - Dashboard com gráfico de linha temporal dos serviços concluídos
@@ -130,6 +133,10 @@ sistema-salao-beleza/
    - Profissional deve ter especialidade compatível com a categoria do serviço
 
 4. **Relatórios**: Apenas serviços com status "Concluído" são considerados para relatórios de performance e vendas.
+
+5. **Serviços**:
+   - Uso de IA para criar descrição quando o campo não for preenchido (Gemini - modelo: gemini-2.5-flash)
+   - Configuração para modelo pensar menos e criar a descrição mais rápida (menos tokens gastos, mas agilidade na criação)
 
 ## Contribuição
 
