@@ -56,6 +56,7 @@ Este é um sistema web desenvolvido em Django para gerenciar agendamentos de um 
 
 - Python 3.11 ou superior
 - pip (gerenciador de pacotes Python)
+- Todas dependencias no requirements.txt
 
 ## Estrutura do Projeto
 
